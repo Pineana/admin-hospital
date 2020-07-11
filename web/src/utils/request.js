@@ -6,11 +6,6 @@ const service = axios.create({
     timeout: 99999
 })
 
-const serviceMongo = axios.create({
-    baseURL: "https://127.0.0.1:8088",
-    timeout: 99999
-})
-
 let acitveAxios = 0
 let loadingInstance
 let timer

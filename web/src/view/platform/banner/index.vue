@@ -112,7 +112,7 @@
                 const isJPG = file.type === "image/jpg";
                 const isJPEG = file.type === "image/jpeg";
                 if (!isJPG && !isPng && !isJPEG) {
-                    this.$message.error("上传头像图片只能是 JPG或png 格式!");
+                    this.$message.error("上传图片只能是 JPG或png 格式!");
                     this.fullscreenLoading = false;
                 }
                 let isRightSize = file.size / 1024 / 1024 < 5
@@ -179,16 +179,23 @@
             }
         },
         created() {
+            this.fullscreenLoading = true
             var that = this
             serviceMongo({
                 url: "/index/bannerquery",
                 method: "get",
             }).then(function (res) {
-                that.tableData=res.data.res.banner
-                for (var i=0;i<5;i++){
-                    that.picList.push(that.tableData[i].src)
+                if (res.data.status= "success"){
+                    that.fullscreenLoading = false
+                    that.tableData=res.data.res.banner
+                    for (var i=0;i<5;i++){
+                        that.picList.push(that.tableData[i].src)
+                    }
+                }else{
+                    that.$message.success("网络错误")
+                    that.fullscreenLoading = false
                 }
-                console.log(that.picList)
+
             })
         },
     };
