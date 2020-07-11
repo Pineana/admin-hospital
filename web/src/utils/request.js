@@ -5,9 +5,16 @@ const service = axios.create({
     baseURL: process.env.VUE_APP_BASE_API,
     timeout: 99999
 })
+
+const serviceMongo = axios.create({
+    baseURL: "https://127.0.0.1:8088",
+    timeout: 99999
+})
+
 let acitveAxios = 0
 let loadingInstance
 let timer
+
 const showLoading = () => {
     acitveAxios++
     if (timer) {

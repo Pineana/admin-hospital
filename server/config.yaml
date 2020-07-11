@@ -11,9 +11,9 @@ jwt:
 # mysql connect configuration
 mysql:
     username: root
-    password: 'Aa@6447985'
-    path: '127.0.0.1:3306'
-    db-name: 'qmPlus'
+    password: 'a3VOqprc'
+    path: '121.36.21.193:3306'
+    db-name: 'ylj_admin'
     config: 'charset=utf8&parseTime=True&loc=Local'
     max-idle-conns: 10
     max-open-conns: 10
@@ -35,9 +35,15 @@ qiniu:
     img-path: '*******'
 # redis configuration
 redis:
-    addr: '127.0.0.1:6379'
-    password: ''
-    db: 0
+    addr: '121.36.21.193:6379'
+    password: '0CxoGojU'
+    db: 1
+# mongodb cofiguration
+mongo:
+    addr: '121.36.21.193:27017'
+    username: 'root'
+    password: 'ylNS3PK0Qd'
+    database: 'YLJ'
 
 # system configuration
 system:
@@ -54,7 +60,7 @@ captcha:
 
 # logger configuration
 log:
-    prefix: '[GIN-VUE-ADMIN]'
+    prefix: '[YLJ-ADMIN]'
     log-file: true
     stdout: 'DEBUG'
     file: 'DEBUG'
