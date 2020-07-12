@@ -102,8 +102,12 @@
                     <el-table-column
                             label="操作"
                             prop="desc" width="150">
-                        <el-button @click="editShop" type="primary" size="small">编辑</el-button>
-                        <el-button type="danger" size="small">删除</el-button>
+                        <template slot-scope="scope">
+                            <el-button @click="editShop(scope.row)" type="primary" size="small">编辑</el-button>
+                            <el-popconfirm title="这是一段内容确定删除吗？" @onConfirm="deleteshop(scope.row._id)" >
+                                <el-button size="small" type="danger" slot="reference">删除</el-button>
+                            </el-popconfirm>
+                        </template>
                     </el-table-column>
                 </el-table>
                 <el-dialog  :visible.sync="dialogVisible" title="添加店铺" width="40%">
@@ -143,6 +147,59 @@
                         <el-button type="primary" @click="handelConfirm">确定</el-button>
                     </div>
                 </el-dialog>
+                <el-dialog  :visible.sync="dialogVisible1" title="编辑店铺" width="40%">
+                    <el-form ref="shopform" :model="formData1" :rules="rules1" size="medium" label-width="100px"
+                             label-position="left">
+                        <el-form-item label="店铺名称" prop="name">
+                            <el-input v-model="formData1.name" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="店铺类别" prop="class">
+                            <el-input v-model="formData1.class" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="联系电话" prop="phonenum">
+                            <el-input v-model="formData1.phonenum" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="经纬度坐标" prop="location">
+                            <el-input v-model="formData1.location" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="所在区域" prop="shortloc">
+                            <el-input v-model="formData1.shortloc" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="详细地址" prop="address">
+                            <el-input v-model="formData1.address" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="关键字" prop="keyword">
+                            <el-input v-model="formData1.keyword" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="店铺销量" prop="salenum">
+                            <el-input v-model="formData1.salenum" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="评论人数" prop="ratenum">
+                            <el-input v-model="formData1.ratenum" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="店铺评分" prop="score">
+                            <el-input v-model="formData1.score" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="起始价格" prop="startprice">
+                            <el-input v-model="formData1.startprice" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                    </el-form>
+                    <div slot="footer">
+                        <el-button @click="close1">取消</el-button>
+                        <el-button type="primary" @click="handelConfirm1">确定</el-button>
+                    </div>
+                </el-dialog>
             </el-col>
         </el-row>
         <div style="margin-top: 20px;display: flex;flex-direction: row;justify-content: flex-end">
@@ -160,11 +217,14 @@
     export default {
         data() {
             return {
+                visible:false,
                 inputid:"",
                 total:0,
                 tableData: [],
                 formData: {},
+                formData1:{},
                 dialogVisible:false,
+                dialogVisible1:false,
                 fullscreenLoading:false,
                 rules: {
                     name: [
@@ -189,11 +249,61 @@
                     keyword:[
                         { type: 'string', required: true, message: '请输入关键词信息', trigger: 'blur' }
                     ]
-
+                },
+                rules1: {
+                    name: [
+                        { required: true, message: '请输入店铺名称', trigger: 'blur' },
+                        { min: 3, max: 15, message: '长度在 3-15 个字符内', trigger: 'blur' }
+                    ],
+                    class: [
+                        { type: 'string',required: true, message: '请输入店铺类别', trigger: 'blur' }
+                    ],
+                    phonenum: [
+                        { type: 'string', required: true, message: '请输入联系电话', trigger: 'blur' }
+                    ],
+                    location: [
+                        { type: 'string', required: true, message: '请输入坐标', trigger: 'blur' }
+                    ],
+                    shortloc:[
+                        { type: 'string', required: true, message: '请输入所处区域', trigger: 'blur' }
+                    ],
+                    address:[
+                        { type: 'string', required: true, message: '请输入详细地址', trigger: 'blur' }
+                    ],
+                    keyword:[
+                        { type: 'string', required: true, message: '请输入关键词信息', trigger: 'blur' }
+                    ],
+                    salenum:[
+                        { type: 'string', required: true, message: '请输入店铺销量', trigger: 'blur' }
+                    ],
+                    ratenum:[
+                        { type: 'string', required: true, message: '请输入店铺评分', trigger: 'blur' }
+                    ],
+                    startprice:[
+                        { type: 'string', required: true, message: '请输入起始价格', trigger: 'blur' }
+                    ],
+                    score:[
+                        { type: 'string', required: true, message: '请输入店铺评分', trigger: 'blur' }
+                    ]
                 },
             }
         },
         methods:{
+            deleteshop(item){
+                console.log(item)
+                var that =this
+                serviceMongo({
+                    url: "/businessinfo/delete?businessinfoid="+item,
+                    method: "get",
+                }).then(function (res) {
+                    if (res.data.Status=="success"){
+                        that.$message.success("删除成功")
+                        that.queryList()
+                    }else{
+                        that.$message.error("网络请求失败")
+                    }
+                })
+            },
             refresh(){
                 this.queryList(1,10)
             },
@@ -223,14 +333,15 @@
             addShop(){
                 this.dialogVisible = true
             },
-            editShop(){
+            editShop(item){
                 this.dialogVisible1 = true
+                this.formData1 = item
             },
             close(){
                 this.dialogVisible = false
             },
             close1(){
-                this.dialogVisible = false
+                this.dialogVisible1 = false
             },
             handelConfirm(){
                 var that = this
@@ -239,18 +350,121 @@
                     this.formData.phonenum!=null&&
                     this.formData.location!=null&&
                     this.formData.shortloc!=null&&
-                    this.formData.address!=null)
+                    this.formData.address!=null&&
+                    this.formData.keyword!=null)
                 {
                     if (this.formData.name!=""&&
                         this.formData.class!=""&&
                         this.formData.phonenum!=""&&
                         this.formData.location!=""&&
                         this.formData.shortloc!=""&&
-                        this.formData.address!="")
+                        this.formData.address!=""&&
+                        this.formData.keyword!="")
                     {
                         this.formData.location = this.formData.location.split("|")
                         var la = Number(this.formData.location[0])
                         var lo = Number(this.formData.location[1])
+                        serviceMongo({
+                            url:"/businessinfo/insert",
+                            method:"post",
+                            data:{
+                                name:this.formData.name,
+                                class:this.formData.class,
+                                phonenum:this.formData.phonenum,
+                                location:{
+                                    type : "Point",
+                                    coordinates : [la, lo]
+                                },
+                                shortloc:this.formData.shortloc,
+                                address:this.formData.address,
+                                keyword:this.formData.keyword,
+                                score:0,
+                                ratenum:0,
+                                salenum:0
+                            }
+                        }).then(function (res) {
+                            console.log(res.data)
+                            if (res.data.Status=="success"){
+                                that.queryList(1,10)
+                                that.$message.success("添加成功")
+                                that.dialogVisible =false
+                                that.formData = {}
+                            }else{
+                                that.$message.error("添加失败")
+                                that.dialogVisible =false
+                                that.fromData = {}
+                            }
+                        })
+
+                    }else{
+                        that.$message.warning("有未填内容")
+                    }
+                }else{
+                    that.$message.warning("有未填内容")
+                }
+            },
+            handelConfirm1(){
+                var that = this
+                if (this.formData1.name!=null&&
+                    this.formData1.class!=null&&
+                    this.formData1.phonenum!=null&&
+                    this.formData1.shortloc!=null&&
+                    this.formData1.address!=null&&
+                    this.formData1.keyword!=null&&
+                    this.formData1.salenum!=null&&
+                    this.formData1.ratenum!=null&&
+                    this.formData1.score!=null&&
+                    this.formData1.startprice!=null)
+                {
+                    if (this.formData1.name!=""&&
+                        this.formData1.class!=""&&
+                        this.formData1.phonenum!=""&&
+                        this.formData1.shortloc!=""&&
+                        this.formData1.address!=""&&
+                        this.formData1.keyword!=""&&
+                        this.formData1.salenum!=""&&
+                        this.formData1.ratenum!=""&&
+                        this.formData1.score!=""&&
+                        this.formData1.startprice!="")
+                    {
+                        if (typeof(this.formData1.location)=="string"){
+                            this.formData1.location = this.formData1.location.split("|")
+                            var la = Number(this.formData1.location[0])
+                            var lo = Number(this.formData1.location[1])
+                        }
+                        serviceMongo({
+                            url:"/businessinfo/update",
+                            method:"post",
+                            data:{
+                                objid:this.formData1._id,
+                                name:this.formData1.name,
+                                class:this.formData1.class,
+                                phonenum:this.formData1.phonenum,
+                                location:{
+                                    type : "Point",
+                                    coordinates : [la, lo]
+                                },
+                                shortloc:this.formData1.shortloc,
+                                address:this.formData1.address,
+                                keyword:this.formData1.keyword,
+                                score:this.formData1.score,
+                                ratenum:this.formData1.ratenum,
+                                salenum:this.formData1.salenum,
+                                startprice:this.formData1.startprice
+                            }
+                        }).then(function (res) {
+                            console.log(res.data)
+                            if (res.data.Status=="success"){
+                                that.queryList(1,10)
+                                that.$message.success("添加成功")
+                                that.dialogVisible =false
+                                that.formData1 = {}
+                            }else{
+                                that.$message.error("添加失败")
+                                that.dialogVisible =false
+                                that.fromData1 = {}
+                            }
+                        })
 
                     }else{
                         that.$message.warning("有未填内容")
@@ -278,10 +492,8 @@
                     url:"/businessinfo/querylist?page="+page+"&limit="+limit,
                     method:"get"
                 }).then(function (res) {
-                    console.log(res.data)
                     if (res.data.Status=="success"){
                         that.tableData=res.data.res
-                        console.log(that.tableData)
                         that.total = res.data.total
                         that.fullscreenLoading = false
                         that.$message.success("加载成功")
