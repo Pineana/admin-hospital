@@ -50,7 +50,7 @@
                 </el-table-column>
                 <el-table-column label="操作" width="150" align="center">
                     <template slot-scope="scope">
-                        <el-button @click="deleteCoupon(scope.row._id)" size="small" type="text"
+                        <el-button @click="deleteCoupon(scope.row._id)" size="small" type="danger"
                         >删除</el-button>
                     </template>
                 </el-table-column>

@@ -17,7 +17,7 @@
             </el-table-column>
             <el-table-column label="操作" width="150" align="center">
                 <template slot-scope="scope">
-                    <el-button @click="updateNotice(scope.row,scope.$index)" size="small" type="text"
+                    <el-button @click="updateNotice(scope.row,scope.$index)" size="small" type="primary"
                     >更新</el-button>
                 </template>
             </el-table-column>
