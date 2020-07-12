@@ -140,7 +140,7 @@
     import { store } from '@/store/index';
     import serviceMongo from "../../../utils/back-request";
     export default {
-        name: "Upload",
+        name: "gift",
         mixins: [infoList],
         data() {
             return {
@@ -225,6 +225,7 @@
                 this.fullscreenLoading2 =false
                 this.dialogVisible2 = false
                 this.formData2 = []
+                this.srcfileList = []
             },
             queryList1(){
                 var that = this
