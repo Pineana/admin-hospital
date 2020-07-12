@@ -8,7 +8,6 @@
             <el-table-column label="性别" prop="sex" width="50">
                 <template slot-scope="scope">
                     <div>{{ scope.row.sex == '1' ? "男":"女" }}</div>
-
                 </template>
             </el-table-column>
             <el-table-column label="手机号" prop="mobile" width="120">

@@ -203,7 +203,6 @@
                 }else{
                     that.$message.warning("有未填内容")
                 }
-
             },
             srcBeforeUpload(file) {
                 this.fullscreenLoading = true;

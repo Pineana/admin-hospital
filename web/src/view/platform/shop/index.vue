@@ -1,10 +1,25 @@
 <template>
     <div v-loading.fullscreen.lock="fullscreenLoading">
-        <el-row :gutter="20">
-            <el-col :span="2" :offset="22" >
+       <div style="display: flex;flex-direction: row;justify-content: start;margin-bottom: 10px">
+           <div style="display:flex;flex-direction:row;width: 92%">
+               <div style="width: 250px">
+                    <el-input
+                            placeholder="支持店铺ID搜索"
+                            prefix-icon="el-icon-search"
+                            v-model="inputid" style="max-width: 250px">
+                    </el-input>
+                </div>
+                <div style="margin-left: 20px">
+                    <el-button-group>
+                        <el-button type="primary" @click="search">搜索</el-button>
+                        <el-button type="primary" icon="el-icon-refresh" @click="refresh"></el-button>
+                    </el-button-group>
+                </div>
+           </div>
+           <div style="width: 8%">
                 <el-button type="primary" @click="addShop">添加店铺</el-button>
-            </el-col>
-        </el-row>
+            </div>
+       </div>
         <el-row :gutter="20">
             <el-col :span="24">
                 <el-table
@@ -51,7 +66,7 @@
                     </el-table-column>
                     <el-table-column
                             label="店铺 ID"
-                            prop="_id">
+                            prop="_id" width="250">
                     </el-table-column>
                     <el-table-column
                             label="店铺名称"
@@ -59,13 +74,23 @@
                     </el-table-column>
                     <el-table-column
                             align="center"
+                            label="联系电话"
+                            prop="phonenum" width="120">
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
                             label="店铺销量"
-                            prop="salenum">
+                            prop="salenum" width="100">
+                    </el-table-column>
+                    <el-table-column
+                            align="center"
+                            label="评论人数"
+                            prop="ratenum" width="100">
                     </el-table-column>
                     <el-table-column
                             align="center"
                             label="店铺评分"
-                            prop="score">
+                            prop="score" width="100">
                         <template slot-scope="scope">
                             <el-tag
                                     type="success"
@@ -76,7 +101,7 @@
                     </el-table-column>
                     <el-table-column
                             label="操作"
-                            prop="desc">
+                            prop="desc" width="150">
                         <el-button @click="editShop" type="primary" size="small">编辑</el-button>
                         <el-button type="danger" size="small">删除</el-button>
                     </el-table-column>
@@ -89,23 +114,28 @@
                             </el-input>
                         </el-form-item>
                         <el-form-item label="店铺类别" prop="class">
-                            <el-input v-model="formData.class" type="number" placeholder="请输入店铺类别" clearable :style="{width: '100%'}">
+                            <el-input v-model="formData.class" type="string" placeholder="请输入店铺类别" clearable :style="{width: '100%'}">
                             </el-input>
                         </el-form-item>
                         <el-form-item label="联系电话" prop="phonenum">
-                            <el-input v-model="formData.phonenum" placeholder="请输入联系电话" type="number" clearable :style="{width: '100%'}">
+                            <el-input v-model="formData.phonenum" placeholder="请输入联系电话" type="string" clearable :style="{width: '100%'}">
                             </el-input>
                         </el-form-item>
-                        <el-form-item label="优惠券金额" prop="discountnum">
-                            <el-input v-model="formData.discountnum" placeholder="请输入礼物价格" type="number" clearable :style="{width: '100%'}">
+                        <el-form-item label="经纬度坐标" prop="location">
+                            <el-input v-model="formData.location" placeholder="请输入经纬度( | 为分隔符)" type="string" clearable :style="{width: '100%'}">
                             </el-input>
                         </el-form-item>
-                        <el-form-item label="图片上传" prop="src">
-                            <el-upload ref="src" :file-list="srcfileList" :action="srcAction" :auto-upload="false"
-                                       :before-upload="srcBeforeUpload" :on-success="uploadSuccess" :limit=1 list-type="picture" accept="image/*" name="file">
-                                <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
-                                <div slot="tip" class="el-upload__tip">只能上传不超过 5MB 的图片文件</div>
-                            </el-upload>
+                        <el-form-item label="所在区域" prop="shortloc">
+                            <el-input v-model="formData.shortloc" placeholder="请输入所属区域" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="详细地址" prop="address">
+                            <el-input v-model="formData.address" placeholder="请输入详细地址" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="关键词" prop="keyword">
+                            <el-input v-model="formData.keyword" placeholder="请输入关键词" type="string" clearable :style="{width: '100%'}">
+                            </el-input>
                         </el-form-item>
                     </el-form>
                     <div slot="footer">
@@ -130,18 +160,104 @@
     export default {
         data() {
             return {
+                inputid:"",
                 total:0,
                 tableData: [],
+                formData: {},
                 dialogVisible:false,
                 fullscreenLoading:false,
+                rules: {
+                    name: [
+                        { required: true, message: '请输入店铺名称', trigger: 'blur' },
+                        { min: 3, max: 15, message: '长度在 3-15 个字符内', trigger: 'blur' }
+                    ],
+                    class: [
+                        { type: 'string',required: true, message: '请输入店铺类别', trigger: 'blur' }
+                    ],
+                    phonenum: [
+                        { type: 'string', required: true, message: '请输入联系电话', trigger: 'blur' }
+                    ],
+                    location: [
+                        { type: 'string', required: true, message: '请输入坐标', trigger: 'blur' }
+                    ],
+                    shortloc:[
+                        { type: 'string', required: true, message: '请输入所处区域', trigger: 'blur' }
+                    ],
+                    address:[
+                        { type: 'string', required: true, message: '请输入详细地址', trigger: 'blur' }
+                    ],
+                    keyword:[
+                        { type: 'string', required: true, message: '请输入关键词信息', trigger: 'blur' }
+                    ]
+
+                },
             }
         },
         methods:{
-            addShop(){
+            refresh(){
+                this.queryList(1,10)
+            },
+            search(){
+                var that = this
+                if (this.inputid==""){
+                    this.$message.warning("搜索内容为空")
+                }else{
+                    serviceMongo({
+                        url:"/businessinfo/query?businessid="+this.inputid,
+                        method:"get"
+                    }).then(function (res) {
+                        if (res.data.Status=="success"){
+                            that.tableData = []
+                            that.tableData.push(res.data.res)
+                            that.total = 0
+                            that.fullscreenLoading = false
+                            that.$message.success("查询成功")
+                        }else{
+                            that.fullscreenLoading = false
+                            that.$message.error("查询失败")
+                        }
+                    })
+                }
 
             },
+            addShop(){
+                this.dialogVisible = true
+            },
             editShop(){
+                this.dialogVisible1 = true
+            },
+            close(){
+                this.dialogVisible = false
+            },
+            close1(){
+                this.dialogVisible = false
+            },
+            handelConfirm(){
+                var that = this
+                if (this.formData.name!=null&&
+                    this.formData.class!=null&&
+                    this.formData.phonenum!=null&&
+                    this.formData.location!=null&&
+                    this.formData.shortloc!=null&&
+                    this.formData.address!=null)
+                {
+                    if (this.formData.name!=""&&
+                        this.formData.class!=""&&
+                        this.formData.phonenum!=""&&
+                        this.formData.location!=""&&
+                        this.formData.shortloc!=""&&
+                        this.formData.address!="")
+                    {
+                        this.formData.location = this.formData.location.split("|")
+                        var la = Number(this.formData.location[0])
+                        var lo = Number(this.formData.location[1])
 
+                    }else{
+                        that.$message.warning("有未填内容")
+                    }
+                }else{
+                    that.$message.warning("有未填内容")
+                }
             },
             current(index){
                 console.log(index)
