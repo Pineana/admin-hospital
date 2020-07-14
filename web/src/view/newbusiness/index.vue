@@ -53,7 +53,7 @@
             </el-table-column>
         </el-table>
         <div style="margin-top: 20px;display: flex;flex-direction: row;justify-content: flex-end">
-            <el-pagination @current-change="current" @prev-click="prevclick" @next-click="nextclick"
+            <el-pagination @current-change="current" :current-page="pageindex" @prev-click="prevclick" @next-click="nextclick"
                     background
                     layout="prev, pager, next"
                     :total="total" :page-size=10>
@@ -69,6 +69,7 @@
         name: 'Table',
         data() {
             return {
+                pageindex:1,
                 fullscreenLoading: false,
                 tableData: [],
                 options: [{
@@ -108,16 +109,13 @@
                 this.queryList(1,this.tempStatus)
             },
             current(index){
-                console.log(index)
                 this.queryList(index,this.tempStatus)
             },
             prevclick(index){
-                console.log(index)
-                this.queryList(index,this.tempStatus)
+                this.pageindex = index
             },
             nextclick(index){
-                console.log(index)
-                this.queryList(index,this.tempStatus)
+                this.pageindex =index
             },
             queryList(index,status){
                 this.fullscreenLoading = true
@@ -129,9 +127,10 @@
                     if (res.data.status= "success"){
                         that.fullscreenLoading = false
                         that.tableData=res.data.res
+                        that.$message.success("加载成功")
                         that.total = res.data.total
                     }else{
-                        that.$message.success("网络错误")
+                        that.$message.error("网络错误")
                         that.fullscreenLoading = false
                     }
                 })

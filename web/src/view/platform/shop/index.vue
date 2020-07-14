@@ -44,7 +44,7 @@
                                     <span>{{ props.row.class }}</span>
                                 </el-form-item>
                                 <el-form-item label="店铺坐标">
-                                    <span>{{ "经纬度："+props.row.location[1].Value}}</span>
+                                    <span>{{ "经纬度："+props.row.location.coordinates}}</span>
                                 </el-form-item>
                                 <el-form-item label="联系电话">
                                     <span>{{ props.row.phonenum }}</span>
@@ -60,6 +60,9 @@
                                 </el-form-item>
                                 <el-form-item label="所在区域">
                                     <span>{{ props.row.shortloc }}</span>
+                                </el-form-item>
+                                <el-form-item label="关键词">
+                                    <span>{{ props.row.keyword }}</span>
                                 </el-form-item>
                             </el-form>
                         </template>
@@ -203,7 +206,7 @@
             </el-col>
         </el-row>
         <div style="margin-top: 20px;display: flex;flex-direction: row;justify-content: flex-end">
-            <el-pagination @current-change="current" @prev-click="prevclick" @next-click="nextclick"
+            <el-pagination @current-change="current" @prev-click="prevclick" @next-click="nextclick" :current-page="pageindex"
                            background
                            layout="prev, pager, next"
                            :total="total" :page-size=10>
@@ -217,6 +220,7 @@
     export default {
         data() {
             return {
+                pageindex:1,
                 visible:false,
                 inputid:"",
                 total:0,
@@ -335,7 +339,10 @@
             },
             editShop(item){
                 this.dialogVisible1 = true
-                this.formData1 = item
+                this.formData1 = this.copy(item)
+            },
+            copy: function(obj) {
+                return JSON.parse(JSON.stringify(obj))
             },
             close(){
                 this.dialogVisible = false
@@ -431,7 +438,9 @@
                             this.formData1.location = this.formData1.location.split("|")
                             var la = Number(this.formData1.location[0])
                             var lo = Number(this.formData1.location[1])
+                            this.formData1.location.coordinates = [la,lo]
                         }
+                        console.log(this.formData1.location)
                         serviceMongo({
                             url:"/businessinfo/update",
                             method:"post",
@@ -442,7 +451,7 @@
                                 phonenum:this.formData1.phonenum,
                                 location:{
                                     type : "Point",
-                                    coordinates : [la, lo]
+                                    coordinates : this.formData1.location.coordinates
                                 },
                                 shortloc:this.formData1.shortloc,
                                 address:this.formData1.address,
@@ -456,11 +465,11 @@
                             console.log(res.data)
                             if (res.data.Status=="success"){
                                 that.queryList(1,10)
-                                that.$message.success("添加成功")
+                                that.$message.success("更新成功")
                                 that.dialogVisible =false
                                 that.formData1 = {}
                             }else{
-                                that.$message.error("添加失败")
+                                that.$message.error("更新失败")
                                 that.dialogVisible =false
                                 that.fromData1 = {}
                             }
@@ -474,18 +483,16 @@
                 }
             },
             current(index){
-                console.log(index)
-                // this.queryList(index,this.tempStatus)
+                this.queryList(index,10)
             },
             prevclick(index){
-                console.log(index)
-                // this.queryList(index,this.tempStatus)
+                this.pageindex=index
             },
             nextclick(index){
-                console.log(index)
-                // this.queryList(index,this.tempStatus)
+                this.pageindex=index
             },
             queryList(page,limit){
+                console.log(1)
                 var that =this
                 this.fullscreenLoading =true
                 serviceMongo({
