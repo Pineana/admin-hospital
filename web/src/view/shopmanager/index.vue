@@ -4,10 +4,9 @@
 
 <script>
     export default {
-        name: "index"
+        name:"ShopManager",
     }
 </script>
-
-<style scoped>
+<style lang="scss">
 
 </style>

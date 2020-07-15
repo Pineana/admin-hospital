@@ -43,6 +43,7 @@ export const user = {
     actions: {
         async LoginIn({ commit }, loginInfo) {
             const res = await login(loginInfo)
+            localStorage.setItem('businessid', loginInfo.username);
             commit('setUserInfo', res.data.user)
             commit('setToken', res.data.token)
             commit('setExpiresAt', res.data.expiresAt)

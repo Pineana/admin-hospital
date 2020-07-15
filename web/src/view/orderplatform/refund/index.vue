@@ -46,7 +46,9 @@
                                 <el-form-item label="备注">
                                     <span>{{ props.row.remarks}}</span>
                                 </el-form-item>
-
+                                <el-form-item label="退款原因">
+                                    <span>{{ props.row.refundreason}}</span>
+                                </el-form-item>
                             </el-form>
                         </template>
                     </el-table-column>
@@ -93,19 +95,16 @@
                             <el-tag v-if="scope.row.status==0"
                                     type="danger"
                                     disable-transitions
-                            >未支付</el-tag>
+                            >待退款</el-tag>
                             <el-tag v-if="scope.row.status==1"
                                     type="warning"
                                     disable-transitions
-                            >未确认</el-tag>
-                            <el-tag v-if="scope.row.status==2"
-                                    type="info"
-                                    disable-transitions
-                            >未评价</el-tag>
-                            <el-tag v-if="scope.row.status==3"
-                                    type="success"
-                                    disable-transitions
-                            >已完成</el-tag>
+                            >已退款</el-tag>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作"  align="center">
+                        <template slot-scope="scope">
+                            <el-button v-if="tempStatus==0" type="primary" @click="refund(scope.row._id)" size="small" icon="el-icon-back">退款</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -128,16 +127,10 @@
             return {
                 options: [{
                     tempStatus: 0,
-                    label: '未支付'
+                    label: '待退款'
                 }, {
                     tempStatus: 1,
-                    label: '未确认'
-                },{
-                    tempStatus: 2,
-                    label: '未评价'
-                },{
-                    tempStatus: 3,
-                    label: '已完成'
+                    label: '已退款'
                 }],
                 tempStatus:0,
                 pageindex:1,

@@ -56,7 +56,7 @@
                     </el-table-column>
                     <el-table-column
                             label="店铺名称"
-                            prop="coursename" width="250">
+                            prop="businessname" width="250">
                     </el-table-column>
                     <el-table-column
                             align="center"

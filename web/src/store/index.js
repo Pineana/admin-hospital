@@ -18,6 +18,9 @@ export default {
 }
 
 export const store = new Vuex.Store({
+    state:{
+        businessid:"",
+    },
     modules: {
         user,
         router,
