@@ -197,9 +197,10 @@
             },
             queryList(page,limit){
                 var that =this
+                var businessid = localStorage.getItem("businessid")
                 this.fullscreenLoading =true
                 serviceMongo({
-                    url:"/order/querylist?page="+page+"&limit="+limit+"&status="+this.tempStatus,
+                    url:"/order/querylistbybusinessid?page="+page+"&limit="+limit+"&status="+this.tempStatus+"businessid="+businessid,
                     method:"get"
                 }).then(function (res) {
                     console.log(res.data)

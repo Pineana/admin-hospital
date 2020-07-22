@@ -99,31 +99,6 @@
             }
         },
         methods:{
-            refresh(){
-                this.queryList(1,10)
-            },
-            search(){
-                var that = this
-                if (this.inputid==""){
-                    this.$message.warning("搜索内容为空")
-                }else{
-                    serviceMongo({
-                        url:"/order/querylistbyorderid?orderid="+this.inputid,
-                        method:"get"
-                    }).then(function (res) {
-                        if (res.data.Status=="success"){
-                            that.tableData = []
-                            that.tableData.push(res.data.res)
-                            that.total = 0
-                            that.fullscreenLoading = false
-                            that.$message.success("查询成功")
-                        }else{
-                            that.fullscreenLoading = false
-                            that.$message.error("查询失败")
-                        }
-                    })
-                }
-            },
             copy: function(obj) {
                 return JSON.parse(JSON.stringify(obj))
             },
@@ -146,8 +121,10 @@
             queryList(page,limit){
                 var that =this
                 this.fullscreenLoading =true
+                var businessid = localStorage.getItem("businessid")
+                console.log(businessid)
                 serviceMongo({
-                    url:"/order/querylist?page="+page+"&limit="+limit+"&status="+this.tempStatus,
+                    url:"/order/querylistbybusinessid?page="+page+"&limit="+limit+"&status="+this.tempStatus+"&businessid="+businessid,
                     method:"get"
                 }).then(function (res) {
                     console.log(res.data)

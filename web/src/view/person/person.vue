@@ -2,12 +2,10 @@
   <div>
     <div class="fl-left left-mg-xs">
       <el-upload
-        :headers="{'x-token':token}"
         :on-success="handleAvatarSuccess"
         :show-file-list="false"
-        :action="`${path}/user/uploadHeaderImg`"
+        action="http://mini.yilianjia.top:9090/group1/upload"
         class="avatar-uploader"
-        name="headerImg"
       >
         <img :src="userInfo.headerImg" class="avatar" v-if="userInfo.headerImg" />
         <i class="el-icon-plus avatar-uploader-icon" v-else></i>
@@ -38,7 +36,7 @@ export default {
   methods:{
     ...mapMutations('user',['ResetUserInfo']),
       handleAvatarSuccess(res){
-        this.ResetUserInfo({headerImg:res.data.user.headerImg})
+        this.ResetUserInfo({headerImg:res})
       }
   }
 }
