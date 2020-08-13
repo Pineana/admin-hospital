@@ -29,7 +29,7 @@
                             <el-col :span="4"><div>类别</div></el-col>
                             <el-col :span="8"><div>{{tableData.class}}</div></el-col>
                             <el-col :span="4"><div>经纬度</div></el-col>
-                            <el-col :span="8"><div>{{tableData.location[1].Value}}</div></el-col>
+                            <el-col :span="8"><div>{{tableData.location.coordinates}}</div></el-col>
                         </el-row>
                         <el-row>
                             <el-col :span="4"><div>电话</div></el-col>
@@ -103,50 +103,47 @@
                     <el-button type="primary" @click="addShow">插入图片</el-button>
                 </div>
             </div>
-            <div v-loading.fullscreen.lock="fullscreenLoading">
+            <div v-loading.fullscreen.lock="fullscreenLoading2">
                 <el-table :data="tableData.showpic" border stripe>
-                    <el-table-column label="预览" align="center">
+                    <el-table-column label="预览" align="center" width="420px">
                         <template slot-scope="scope">
                             <div style="display: flex;justify-content: center">
-                                <el-image style="width: 300px; height: 100px" :src="scope.row" :preview-src-list="picList"></el-image>
+                                <el-image style="width: 425px; height: 210px" :src="scope.row" :preview-src-list="picList"></el-image>
                             </div>
                         </template>
                     </el-table-column>
                     <el-table-column label="url地址" prop="showpic" align="center">
                         <template slot-scope="scope">
-                            <div>{{ scope.row }}</div>
+                            <el-link type="primary" :href="scope.row">{{ scope.row }}</el-link>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" width="150" align="center">
                         <template slot-scope="scope">
-                            <el-button @click="updateBanner(scope.row,scope.$index)" size="small" type="primary"
-                            >更新</el-button
-                            >
-                            <el-link :href="scope.row">
-                                <el-button size="small" type="danger">删除</el-button>
-                            </el-link>
+                          <el-popconfirm title="这是一段内容确定删除吗？" @onConfirm="deleteShowPic(scope.$index)" >
+                            <el-button size="small" type="danger" slot="reference">删除</el-button>
+                          </el-popconfirm>
                         </template>
                     </el-table-column>
                 </el-table>
-                <el-dialog  :visible.sync="dialogVisible1" title="广告栏编辑">
-                    <el-form ref="bannerform" :model="formData1"  size="medium" label-width="100px"
+                <el-dialog  :visible.sync="dialogVisible2" title="店铺展示编辑">
+                    <el-form ref="showpicform" :model="formData2"  size="medium" label-width="100px"
                              label-position="left">
                         <el-form-item label="链接地址" prop="url">
-                            <el-input v-model="formData1.url" placeholder="请输入链接地址:请带上https:// 前缀" clearable prefix-icon='el-icon-s-promotion'
+                            <el-input v-model="formData2.url" placeholder="请输入链接地址:请带上https:// 前缀" clearable prefix-icon='el-icon-s-promotion'
                                       :style="{width: '100%'}">
                             </el-input>
                         </el-form-item>
-                        <el-form-item label="图片上传" prop="src" required>
-                            <el-upload ref="src" :file-list="srcfileList" :action="srcAction" :auto-upload="false"
-                                       :before-upload="srcBeforeUpload" :on-success="uploadSuccess" :limit=1 list-type="picture" accept="image/*" name="file">
+                        <el-form-item label="图片上传" prop="src">
+                            <el-upload ref="src" :file-list="srcfileList" :action="srcAction"
+                                       :before-upload="beforeAvatarUpload" :on-success="uploadSuccess" :limit=1 list-type="picture" accept="image/*" name="file">
                                 <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
                                 <div slot="tip" class="el-upload__tip">只能上传不超过 5MB 的图片文件</div>
                             </el-upload>
                         </el-form-item>
                     </el-form>
                     <div slot="footer">
-                        <el-button @click="close">取消</el-button>
-                        <el-button type="primary" @click="handelConfirm">确定</el-button>
+                        <el-button @click="close2">取消</el-button>
+                        <el-button type="primary" @click="handelConfirm2">确定</el-button>
                     </div>
                 </el-dialog>
             </div>
@@ -160,50 +157,59 @@
                     <el-button type="primary" @click="addTeacher">插入教师信息</el-button>
                 </div>
             </div>
-            <div v-loading.fullscreen.lock="fullscreenLoading">
-                <el-table :data="tableData.showpic" border stripe>
-                    <el-table-column label="预览" align="center">
+            <div v-loading.fullscreen.lock="fullscreenLoading3">
+                <el-table :data="tableData.teacherlist" border stripe>
+                    <el-table-column label="教师头像" align="center" width="200px">
                         <template slot-scope="scope">
                             <div style="display: flex;justify-content: center">
-                                <el-image style="width: 300px; height: 100px" :src="scope.row" :preview-src-list="picList"></el-image>
+                                <el-image style="width: 150px; height: 150px" :src="scope.row.picurl" :preview-src-list="picList"></el-image>
                             </div>
                         </template>
                     </el-table-column>
-                    <el-table-column label="url地址" prop="showpic" align="center">
+                    <el-table-column label="教师姓名" prop="name" align="center" width="80px">
                         <template slot-scope="scope">
-                            <div>{{ scope.row }}</div>
+                            <div>{{ scope.row.name }}</div>
                         </template>
+                    </el-table-column>
+                    <el-table-column label="教师介绍" prop="content" align="center">
+                      <template slot-scope="scope">
+                        <el-tooltip class="item" effect="dark" :content="scope.row.content" placement="bottom">
+                          <div>{{scope.row.content}}</div>
+                        </el-tooltip>
+                      </template>
                     </el-table-column>
                     <el-table-column label="操作" width="150" align="center">
                         <template slot-scope="scope">
-                            <el-button @click="updateBanner(scope.row,scope.$index)" size="small" type="primary"
-                            >更新</el-button
-                            >
-                            <el-link :href="scope.row">
-                                <el-button size="small" type="danger">删除</el-button>
-                            </el-link>
+                          <el-popconfirm title="这是一段内容确定删除吗？" @onConfirm="deleteTeacher(scope.$index)" >
+                            <el-button size="small" type="danger" slot="reference">删除</el-button>
+                          </el-popconfirm>
                         </template>
                     </el-table-column>
                 </el-table>
-                <el-dialog  :visible.sync="dialogVisible1" title="广告栏编辑">
-                    <el-form ref="bannerform" :model="formData1"  size="medium" label-width="100px"
+                <el-dialog  :visible.sync="dialogVisible3" title="教师信息插入">
+                    <el-form ref="teacherform" :model="formData3"  size="medium" label-width="100px"
                              label-position="left">
-                        <el-form-item label="链接地址" prop="url">
-                            <el-input v-model="formData1.url" placeholder="请输入链接地址:请带上https:// 前缀" clearable prefix-icon='el-icon-s-promotion'
+                        <el-form-item label="教师姓名" prop="url">
+                            <el-input v-model="formData3.name" placeholder="请输入教师姓名" clearable
                                       :style="{width: '100%'}">
                             </el-input>
                         </el-form-item>
-                        <el-form-item label="图片上传" prop="src" required>
-                            <el-upload ref="src" :file-list="srcfileList" :action="srcAction" :auto-upload="false"
-                                       :before-upload="srcBeforeUpload" :on-success="uploadSuccess" :limit=1 list-type="picture" accept="image/*" name="file">
+                        <el-form-item label="教师介绍" prop="url">
+                          <el-input type="textarea" v-model="formData3.content" placeholder="请输入教师介绍" clearable
+                                    :style="{width: '100%'}">
+                          </el-input>
+                        </el-form-item>
+                        <el-form-item label="头像上传" prop="src" required>
+                            <el-upload ref="src" :file-list="srcfileList" :action="srcAction"
+                                       :before-upload="beforeAvatarUpload" :on-success="uploadSuccess2" :limit=1 list-type="picture" accept="image/*" name="file">
                                 <el-button size="small" type="primary" icon="el-icon-upload">点击上传</el-button>
                                 <div slot="tip" class="el-upload__tip">只能上传不超过 5MB 的图片文件</div>
                             </el-upload>
                         </el-form-item>
                     </el-form>
                     <div slot="footer">
-                        <el-button @click="close">取消</el-button>
-                        <el-button type="primary" @click="handelConfirm">确定</el-button>
+                        <el-button @click="close3">取消</el-button>
+                        <el-button type="primary" @click="handelConfirm3">确定</el-button>
                     </div>
                 </el-dialog>
             </div>
@@ -217,13 +223,21 @@
 
     export default {
         name: "index",
-        components: {Table},
         data() {
             return {
                 tempurl :"",
                 dialogVisible1:false,
+                dialogVisible2:false,
+                dialogVisible3:false,
                 fullscreenLoading:false,
+                fullscreenLoading2:false,
+                fullscreenLoading3:false,
+                picList:[],
+                srcAction: 'http://mini.yilianjia.top:9090/group1/upload',
+                srcfileList: [],
                 formData1:{},
+                formData2:{url:""},
+                formData3:{},
                 tableData:{},
                 rules1: {
                     name: [
@@ -255,8 +269,68 @@
             };
         },
         methods: {
-            addShow(){},
-            addTeacher(){},
+            deleteShowPic(item){
+              var that = this
+              var businessid = localStorage.getItem("businessid")
+              this.tableData.showpic.splice(item,1)
+              serviceMongo({
+                url: "/businessinfo/update",
+                method: "post",
+                data:{
+                  objid:businessid,
+                  showpic:that.tableData.showpic
+                }
+              }).then(function (res) {
+                if (res.data.status= "success"){
+                  that.$message.success("删除成功")
+                  that.formData2 = {}
+                  that.queryList()
+                }else{
+                  that.$message.error("删除失败")
+                  that.formData2 = {}
+                  that.queryList()
+                }
+              })
+            },
+            deleteTeacher(item){
+              console.log(item)
+              var that = this
+              var businessid = localStorage.getItem("businessid")
+              this.tableData.teacherlist.splice(item,1)
+              console.log(this.tableData.teacherlist)
+              serviceMongo({
+                url: "/businessinfo/update",
+                method: "post",
+                data:{
+                  objid:businessid,
+                  teacherlist:that.tableData.teacherlist
+                }
+              }).then(function (res) {
+                if (res.data.status= "success"){
+                  that.$message.success("删除成功")
+                  that.formData3 = {}
+                  that.queryList()
+                }else{
+                  that.$message.error("删除失败")
+                  that.formData3 = {}
+                  that.queryList()
+                }
+              })
+            },
+            addShow(){
+              this.dialogVisible2 = true
+            },
+            uploadSuccess(response){
+              var that = this
+              that.formData2.url = response
+            },
+            uploadSuccess2(response){
+              var that = this
+              that.formData3.picurl = response
+            },
+            addTeacher(){
+              this.dialogVisible3 = true
+            },
             copy: function(obj) {
                 return JSON.parse(JSON.stringify(obj))
             },
@@ -267,6 +341,14 @@
             },
             close1(){
                 this.dialogVisible1 = false
+            },
+            close2(){
+              this.dialogVisible2 = false
+              this.formData2 = {}
+            },
+            close3(){
+              this.dialogVisible3 = false
+              this.formData3 = {}
             },
             handelConfirm1(){
                 var that = this
@@ -313,7 +395,7 @@
                         }).then(function (res) {
                             console.log(res.data)
                             if (res.data.Status=="success"){
-                                that.queryList(1,10)
+                                that.querylist()
                                 that.$message.success("更新成功")
                                 that.dialogVisible =false
                                 that.formData1 = {}
@@ -321,6 +403,7 @@
                                 that.$message.error("更新失败")
                                 that.dialogVisible =false
                                 that.fromData1 = {}
+                                that.querylist()
                             }
                         })
 
@@ -330,6 +413,65 @@
                 }else{
                     that.$message.warning("有未填内容")
                 }
+            },
+            handelConfirm2(){
+                var that = this
+                if (that.tableData.showpic==null){
+                  that.tableData.showpic=[]
+                }
+                that.tableData.showpic.push(this.formData2.url)
+                var businessid = localStorage.getItem("businessid")
+                if (that.formData2.url!=""){
+                    serviceMongo({
+                      url: "/businessinfo/update",
+                      method: "post",
+                      data:{
+                        objid:businessid,
+                        showpic:that.tableData.showpic
+                      }
+                    }).then(function (res) {
+                      if (res.data.status= "success"){
+                        that.$message.success("更新成功")
+                        that.dialogVisible2 = false
+                        that.formData2 = {}
+                        that.queryList()
+                      }else{
+                        that.$message.error("更新失败")
+                        that.dialogVisible2 =false
+                        that.formData2 = {}
+                        that.queryList()
+                      }
+                    })
+                }
+            },
+            handelConfirm3(){
+              var that = this
+              if (that.tableData.teacherlist==null){
+                that.tableData.teacherlist=[]
+              }
+              that.tableData.teacherlist.push(this.formData3)
+              console.log(this.tableData.teacherlist)
+              var businessid = localStorage.getItem("businessid")
+                serviceMongo({
+                  url: "/businessinfo/update",
+                  method: "post",
+                  data:{
+                    objid:businessid,
+                    teacherlist:that.tableData.teacherlist
+                  }
+                }).then(function (res) {
+                  if (res.data.status= "success"){
+                    that.$message.success("更新成功")
+                    that.formData3 = {}
+                    that.dialogVisible3 = false
+                    that.queryList()
+                  }else{
+                    that.$message.error("更新失败")
+                    that.formData3 = {}
+                    that.dialogVisible3 = false
+                    that.queryList()
+                  }
+                })
             },
             handleAvatarSuccess(response, file) {
                 var that = this

@@ -46,24 +46,21 @@
                                 <el-form-item label="备注">
                                     <span>{{ props.row.remarks}}</span>
                                 </el-form-item>
-                                <el-form-item label="退款原因">
-                                    <span>{{ props.row.refundreason}}</span>
-                                </el-form-item>
                             </el-form>
                         </template>
                     </el-table-column>
                     <el-table-column
                             label="订单号"
-                            prop="orderid" width="200">
+                            prop="orderid" width="180">
                     </el-table-column>
                     <el-table-column
                             label="店铺名称"
-                            prop="businessname" width="250">
+                            prop="businessname" width="150">
                     </el-table-column>
                     <el-table-column
                             align="center"
                             label="订单金额"
-                            prop="price" width="80">
+                            prop="price" width="50">
                     </el-table-column>
                     <el-table-column
                             align="center"
@@ -92,19 +89,20 @@
                             </div>
                         </template>
                         <template slot-scope="scope">
-                            <el-tag v-if="scope.row.status==0"
+                            <el-tag v-if="scope.row.bstatus==1"
                                     type="danger"
                                     disable-transitions
                             >待退款</el-tag>
-                            <el-tag v-if="scope.row.status==1"
-                                    type="warning"
+                            <el-tag v-if="scope.row.bstatus==2"
+                                    type="success"
                                     disable-transitions
                             >已退款</el-tag>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作"  align="center">
                         <template slot-scope="scope">
-                            <el-button v-if="tempStatus==0" type="primary" @click="refund(scope.row._id)" size="small" icon="el-icon-back">退款</el-button>
+                            <el-button v-if="tempStatus==1" type="primary" @click="refund(scope.row.orderid)" size="small" icon="el-icon-back">退款</el-button>
+                            <el-button v-if="tempStatus==1" type="danger" @click="refundcancel(scope.row.orderid)" size="small" icon="el-icon-close">拒绝</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -126,13 +124,13 @@
         data() {
             return {
                 options: [{
-                    tempStatus: 0,
+                    tempStatus: 1,
                     label: '待退款'
                 }, {
-                    tempStatus: 1,
+                    tempStatus: 2,
                     label: '已退款'
                 }],
-                tempStatus:0,
+                tempStatus:2,
                 pageindex:1,
                 visible:false,
                 inputid:"",
@@ -144,6 +142,36 @@
             }
         },
         methods:{
+            refundcancel(item){
+              var that = this
+              serviceMongo({
+                url:"/order/bupdate?orderid="+item+"&bstatus="+0,
+                method:"get"
+              }).then(function (res) {
+                if (res.data.Status=="success"){
+                  that.$message.success("操作成功")
+                  that.querylist(1,10)
+                }else{
+                  that.$message.error("操作失败")
+                  that.querylist(1,10)
+                }
+              })
+            },
+            refund(item){
+              var that = this
+              serviceMongo({
+                url:"/order/refund?orderid="+item,
+                method:"get"
+              }).then(function (res) {
+                if (res.data.Status=="success"){
+                  that.$message.success("退款成功")
+                  that.querylist(1,10)
+                }else{
+                  that.$message.error("退款失败")
+                  that.querylist(1,10)
+                }
+              })
+            },
             refresh(){
                 this.queryList(1,10)
             },
@@ -192,7 +220,7 @@
                 var that =this
                 this.fullscreenLoading =true
                 serviceMongo({
-                    url:"/order/querylist?page="+page+"&limit="+limit+"&status="+this.tempStatus,
+                    url:"/order/queryrefundlist?page="+page+"&limit="+limit+"&bstatus="+this.tempStatus,
                     method:"get"
                 }).then(function (res) {
                     console.log(res.data)
